@@ -1,5 +1,5 @@
 # Dailies
-Dailies is an open source application to convert Images to video or convert video to another video with help of FFMPEG
+Dailies is an open source application to convert Images to a video or convert a video format to another format with help of FFMPEG
 Application is on beta period, there is no released version yet.
 
 ## Minimum Requirements
