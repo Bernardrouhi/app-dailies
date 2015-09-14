@@ -1,5 +1,19 @@
-import os, sys, shutil, subprocess
+"""
+Created on September 7th, 2015
+@author: Bernard Rouhi
+"""
+import os, sys, shutil, subprocess, inspect
 from PyQt4 import QtGui, QtCore
+
+os.chdir("..")
+below_path =  os.getcwd()
+if below_path not in sys.path:
+	sys.path.append(below_path)
+
+import Modules.Converter as convert
+import Modules.PreConvert as preConvert
+reload(convert)
+reload(preConvert)
 
 showDailiesWindow = None
 
@@ -10,11 +24,11 @@ class MainWindow(QtGui.QWidget):
 
 		#General Setup
 		version = 0.1
+		self.setWindowIcon(QtGui.QIcon('Icon/Bear_256x256.png'))
 		self.setWindowTitle('Dailies Video v%s'%version)
 		self.setGeometry(300, 300, 250, 150)
 		self.setFixedHeight(500)
 		self.setFixedWidth(400)
-		self.setWindowIcon(QtGui.QIcon('icon/Library_32x32.png'))
 		# self.setStyleSheet("""
 		# 	QComboBox {
 		# 	color : rgb(80,80,80);
@@ -144,11 +158,11 @@ class MainWindow(QtGui.QWidget):
 		staticVersionName = QtGui.QLabel("Version:")
 		staticVersionName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticVersionName.setFixedWidth(74)
-		self.getTaskName = QtGui.QLineEdit()
-		self.getTaskName.setPlaceholderText("Version Name...")
+		self.getVersionNum = QtGui.QLineEdit()
+		self.getVersionNum.setPlaceholderText("Version Name...")
 
 		movie_version_widget.addWidget(staticVersionName)
-		movie_version_widget.addWidget(self.getTaskName)
+		movie_version_widget.addWidget(self.getVersionNum)
 
 		#-----------------------
 		movie_info_group.setLayout(movie_info_GPLayout)
@@ -159,15 +173,15 @@ class MainWindow(QtGui.QWidget):
 		#########################################################
 
 		#Tabs
-		tab_widget = QtGui.QTabWidget()
-		tab_widget.setTabPosition(QtGui.QTabWidget.East)
-		tab_widget.setLayout(QtGui.QVBoxLayout())
-		tab_widget.layout().setContentsMargins(5,5,5,5)
-		tab_widget.layout().setSpacing(2)
-		tab_widget.setSizePolicy(QtGui.QSizePolicy.Minimum,
+		self.tab_widget = QtGui.QTabWidget()
+		self.tab_widget.setTabPosition(QtGui.QTabWidget.East)
+		self.tab_widget.setLayout(QtGui.QVBoxLayout())
+		self.tab_widget.layout().setContentsMargins(5,5,5,5)
+		self.tab_widget.layout().setSpacing(2)
+		self.tab_widget.setSizePolicy(QtGui.QSizePolicy.Minimum,
 										QtGui.QSizePolicy.Minimum)
 
-		general_widget.addWidget(tab_widget)
+		general_widget.addWidget(self.tab_widget)
 
 		#########################################################
 		#Movie Tab
@@ -181,7 +195,7 @@ class MainWindow(QtGui.QWidget):
 										QtGui.QSizePolicy.Minimum)
 
 		#>>>>>>>>GROUP>>>>>>>>>>
-		movie_read_group = QtGui.QGroupBox('Read:')
+		movie_read_group = QtGui.QGroupBox('Read Video:')
 		movie_read_GPLayout = QtGui.QVBoxLayout()
 		movie_read_GPLayout.setContentsMargins(5,5,5,5)
 		movie_read_GPLayout.setSpacing(3)
@@ -196,13 +210,14 @@ class MainWindow(QtGui.QWidget):
 		movie_read_GPLayout.addLayout(movie_videoRead_widget)
 
 		## Video Read
-		staticVideoReadName = QtGui.QLabel("Read Video:")
+		staticVideoReadName = QtGui.QLabel("Video Path:")
 		staticVideoReadName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticVideoReadName.setFixedWidth(80)
 		self.getVideoRead = QtGui.QLineEdit()
 		self.getVideoRead.setPlaceholderText("Read File...")
+		self.getVideoRead.setReadOnly(True)
 		actionVideoRead = QtGui.QPushButton('Read File')
-		# actionVideoRead.released.connect(self.getImagePath)
+		actionVideoRead.released.connect(self.getFilePath)
 
 		movie_videoRead_widget.addWidget(staticVideoReadName)
 		movie_videoRead_widget.addWidget(self.getVideoRead)
@@ -221,7 +236,7 @@ class MainWindow(QtGui.QWidget):
 		movie_read_GPLayout.addLayout(movie_res_widget)
 
 		## Video Resolution
-		staticReadResName = QtGui.QLabel("Read Res:")
+		staticReadResName = QtGui.QLabel("Resolution:")
 		staticReadResName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticReadResName.setFixedWidth(80)
 		self.getReadResComb= QtGui.QComboBox()
@@ -233,7 +248,6 @@ class MainWindow(QtGui.QWidget):
 		self.getReadResComb.addItem("640x480")
 		self.getReadResComb.addItem("704x576")
 		self.getReadResComb.addItem("800x600")
-		self.getReadResComb.addItem("852x480")
 		self.getReadResComb.addItem("852x480")
 		self.getReadResComb.addItem("1024x768")
 		self.getReadResComb.addItem("1280x720")
@@ -272,9 +286,9 @@ class MainWindow(QtGui.QWidget):
 		staticFrameRateName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticFrameRateName.setFixedWidth(80)
 		self.getFrameRateComb= QtGui.QComboBox()
-		self.getFrameRateComb.addItem("24p")
-		self.getFrameRateComb.addItem("25p")
-		self.getFrameRateComb.addItem("30p")
+		self.getFrameRateComb.addItem("24")
+		self.getFrameRateComb.addItem("25")
+		self.getFrameRateComb.addItem("30")
 
 		movie_framerate_widget.addWidget(staticFrameRateName)
 		movie_framerate_widget.addWidget(self.getFrameRateComb)
@@ -284,8 +298,8 @@ class MainWindow(QtGui.QWidget):
 		movie_main_layout.addWidget(movie_read_group)
 		#<<<<<<<<<<<<<<<<<<<<<<<
 
-		tab_widget.layout().addWidget(movie_widget)
-		tab_widget.addTab(movie_widget,"Movie")
+		self.tab_widget.layout().addWidget(movie_widget)
+		self.tab_widget.addTab(movie_widget,"Video")
 		#########################################################
 		#########################################################
 		#Image Tab
@@ -299,7 +313,7 @@ class MainWindow(QtGui.QWidget):
 										QtGui.QSizePolicy.Minimum)
 
 		#>>>>>>>>GROUP>>>>>>>>>>
-		image_read_group = QtGui.QGroupBox('Read:')
+		image_read_group = QtGui.QGroupBox('Read Images:')
 		image_read_GPLayout = QtGui.QVBoxLayout()
 		image_read_GPLayout.setContentsMargins(5,5,5,5)
 		image_read_GPLayout.setSpacing(3)
@@ -314,13 +328,14 @@ class MainWindow(QtGui.QWidget):
 		image_read_GPLayout.addLayout(image_videoRead_widget)
 
 		## Image Read
-		staticImageReadName = QtGui.QLabel("Read Images:")
+		staticImageReadName = QtGui.QLabel("Images Path:")
 		staticImageReadName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticImageReadName.setFixedWidth(80)
 		self.getImageRead = QtGui.QLineEdit()
 		self.getImageRead.setPlaceholderText("Read From...")
-		actionImageRead = QtGui.QPushButton('Read From')
-		# actionVideoRead.released.connect(self.getImagePath)
+		self.getImageRead.setReadOnly(True)
+		actionImageRead = QtGui.QPushButton('Read Files')
+		actionImageRead.released.connect(self.getImagePath)
 
 		image_videoRead_widget.addWidget(staticImageReadName)
 		image_videoRead_widget.addWidget(self.getImageRead)
@@ -338,7 +353,7 @@ class MainWindow(QtGui.QWidget):
 
 		image_read_GPLayout.addLayout(image_type_widget)
 
-		## Video Resolution
+		## Image Resolution
 		staticImageTypeName = QtGui.QLabel("Image Type:")
 		staticImageTypeName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticImageTypeName.setFixedWidth(80)
@@ -355,8 +370,8 @@ class MainWindow(QtGui.QWidget):
 		image_main_layout.addWidget(image_read_group)
 		#<<<<<<<<<<<<<<<<<<<<<<<
 
-		tab_widget.layout().addWidget(image_widget)
-		tab_widget.addTab(image_widget,"Images")
+		self.tab_widget.layout().addWidget(image_widget)
+		self.tab_widget.addTab(image_widget,"Images")
 		#########################################################
 
 		#-----------------------
@@ -388,7 +403,9 @@ class MainWindow(QtGui.QWidget):
 		staticWriteName.setFixedWidth(74)
 		self.getWritePath = QtGui.QLineEdit()
 		self.getWritePath.setPlaceholderText("Write to...")
+		self.getWritePath.setReadOnly(True)
 		actionWritePath = QtGui.QPushButton('Write to')
+		actionWritePath.released.connect(self.setDestination)
 		# actionVideowrite.released.connect(self.getImagePath)
 
 		write_path_widget.addWidget(staticWriteName)
@@ -412,9 +429,9 @@ class MainWindow(QtGui.QWidget):
 		staticImageWriteResName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticImageWriteResName.setFixedWidth(74)
 		self.getImageWriteResComb= QtGui.QComboBox()
-		self.getImageWriteResComb.addItem("4K Ultra HD [4096 x 2160]")
-		self.getImageWriteResComb.addItem("1080p Full HD [1920 x 1080]")
-		self.getImageWriteResComb.addItem("720p HD [1280 x 720]")
+		self.getImageWriteResComb.addItem("4K Ultra HD [4096x2160]")
+		self.getImageWriteResComb.addItem("1080p Full HD [1920x1080]")
+		self.getImageWriteResComb.addItem("720p HD [1280x720]")
 
 		write_Res_widget.addWidget(staticImageWriteResName)
 		write_Res_widget.addWidget(self.getImageWriteResComb)
@@ -436,9 +453,9 @@ class MainWindow(QtGui.QWidget):
 		staticWriteFrameRateName.setAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignRight|QtCore.Qt.AlignCenter)
 		staticWriteFrameRateName.setFixedWidth(74)
 		self.getWriteFrameRateComb= QtGui.QComboBox()
-		self.getWriteFrameRateComb.addItem("24p")
-		self.getWriteFrameRateComb.addItem("25p")
-		self.getWriteFrameRateComb.addItem("30p")
+		self.getWriteFrameRateComb.addItem("24")
+		self.getWriteFrameRateComb.addItem("25")
+		self.getWriteFrameRateComb.addItem("30")
 
 		write_framerate_widget.addWidget(staticWriteFrameRateName)
 		write_framerate_widget.addWidget(self.getWriteFrameRateComb)
@@ -461,6 +478,8 @@ class MainWindow(QtGui.QWidget):
 		staticWriteStartFrameName.setFixedWidth(74)
 		self.getWriteStartFrame= QtGui.QLineEdit()
 		self.getWriteStartFrame.setPlaceholderText("Start Frame From...")
+		StartFrame_validator = QtGui.QRegExpValidator(val_num,self.getWriteStartFrame)
+		self.getWriteStartFrame.setValidator(StartFrame_validator)
 
 		write_startframe_widget.addWidget(staticWriteStartFrameName)
 		write_startframe_widget.addWidget(self.getWriteStartFrame)
@@ -478,10 +497,139 @@ class MainWindow(QtGui.QWidget):
 		self.layout().addLayout(write_action_widget)
 
 		## Write it
-		actionWriteVideo = QtGui.QPushButton("Write It")
+		actionWriteVideo = QtGui.QPushButton("Convert")
+		actionWriteVideo.released.connect(self.convert)
 
 		write_action_widget.addWidget(actionWriteVideo)
 		#-----------------------
+
+		self.getArtistName.setText("Bernard Rouhi")
+	def getImagePath(self):
+		MyPath = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
+		self.getImageRead.setText(MyPath)
+
+	def getFilePath(self):
+		filters = "Select file"
+		selected_filter = "Videos (*.mov *.mp4 *.mpg)"
+		MyPath = str(QtGui.QFileDialog.getOpenFileName(self, "Select Directory",filters, selected_filter))
+		self.getVideoRead.setText(MyPath)
+
+	def getPaths(self):
+		mainPaths = open("MainPaths.txt","r")
+		lines = (mainPaths.read()).splitlines()
+		paths = {}
+		for eachline in lines:
+			print eachline
+			if "FFMPEG Path:" in eachline:
+				paths["FFMPEG"] =  (eachline.replace("FFMPEG Path:","")).replace(" ", "")
+		return paths
+
+	def convert(self):
+		artistName = (self.getArtistName.text()).replace(" ","-")
+		if not artistName:
+			artistName = "Unknown"
+		sequenceName = self.getSequenceName.text()
+		shotName = self.getShotName.text()
+		taskName = self.getTaskName.text()
+		if not taskName:
+			taskName = "Unknown"
+		versionNum = self.getVersionNum.text()
+		if not versionNum:
+			versionNum = "Unknown"
+		if self.getWriteStartFrame.text():
+			frameStrat = int(self.getWriteStartFrame.text())
+		else:
+			frameStrat = 0
+
+		sequenceName = preConvert.combineName(sequence=sequenceName, shot=shotName, version=versionNum)
+		frameRate = int(self.getWriteFrameRateComb.currentText())
+		finalResolution = ((str(self.getImageWriteResComb.currentText())).split("[")[-1]).replace("]","")
+		finalDestination = (str(self.getWritePath.text())).replace("\\","/")
+		if finalDestination:
+			if self.tab_widget.currentIndex() == 0:
+				videoPath 		= self.getVideoRead.text()
+				videoResolution = preConvert.resCode(Resolution = str(self.getReadResComb.currentText()))
+				videoFrameRate  = int(self.getFrameRateComb.currentText())
+				pathDic = convert.getPaths()
+				prePath = preConvert.setPreDestination()
+				if videoPath:
+					ImageName = convert.video2images(
+						ffmpegPath = pathDic["FFMPEG"] ,
+						VideoSource = videoPath ,
+						VideoName = sequenceName ,
+						ImageDestination = prePath ,
+						Resolution = videoResolution,
+						FrameRate = videoFrameRate ,
+						Zeros = 4
+						)
+					ImageName = preConvert.renameAndMove(
+						setImagesPath = prePath ,
+						fileType = "png" ,
+						name = sequenceName ,
+						zeros = 5 , 
+						destination = prePath ,
+						startNum = frameStrat
+						)
+					textBurn = convert.textDecoration(ArtistN=artistName, SequenceN=sequenceName, TaskN=taskName, FrameN=True, TimeCode=True)
+					if frameStrat != 0:
+						preConvert.FillTheGap(
+							ImagesPath = prePath ,
+							fileType = "png" ,
+							name = sequenceName ,
+							zeros = 5 ,
+							FrameStart = frameStrat
+							)
+					timing = (frameStrat/float(frameRate)) + 0.000
+					offsetT = "00:00:%s"%timing
+					convert.images2video(
+						ffmpegPath = pathDic["FFMPEG"],
+						ImageSource = "%s/%s"%(prePath,ImageName) ,
+						VideoDestination = "%s/%s.mov"%(finalDestination,sequenceName) ,
+						TextBurn = textBurn , 
+						Resolution = finalResolution ,
+						FrameRate = frameRate ,
+						OffsetTime = offsetT
+						)
+				preConvert.deletePath(SelectedPath=prePath)
+			if self.tab_widget.currentIndex() == 1:
+				imageSource = (str(self.getImageRead.text())).replace("\\","/")
+				imageType = str(self.getImageTypeComb.currentText())
+				pathDic = convert.getPaths()
+				textBurn = convert.textDecoration(ArtistN=artistName, SequenceN=sequenceName, TaskN=taskName, FrameN=True, TimeCode=True)
+				prePath = preConvert.setPreDestination()
+				if imageSource:
+					ImageName = preConvert.renameAndMove(
+						setImagesPath = imageSource ,
+						fileType = imageType ,
+						name = sequenceName ,
+						zeros = 5 , 
+						destination = prePath ,
+						startNum = frameStrat
+						)
+					if frameStrat != 0:
+						preConvert.FillTheGap(
+							ImagesPath = prePath ,
+							fileType = imageType ,
+							name = sequenceName ,
+							zeros = 5 ,
+							FrameStart = frameStrat
+							)
+					timing = (frameStrat/float(frameRate)) + 0.000
+					offsetT = "00:00:%s"%timing
+					convert.images2video(
+						ffmpegPath = pathDic["FFMPEG"],
+						ImageSource = "%s/%s"%(prePath,ImageName) ,
+						VideoDestination = "%s/%s.mov"%(finalDestination,sequenceName) ,
+						TextBurn = textBurn , 
+						Resolution = finalResolution ,
+						FrameRate = frameRate ,
+						OffsetTime = offsetT
+						)
+				preConvert.deletePath(SelectedPath=prePath)
+
+	def setDestination(self):
+		MyPath = str(QtGui.QFileDialog.getExistingDirectory(self, "Save To"))
+		self.getWritePath.setText(MyPath)
 
 def create():
 	global showDailiesWindow
