@@ -25,14 +25,14 @@ def video2images(ffmpegPath, VideoSource, VideoName , ImageDestination, Resoluti
 	import os
 	ffmpegSource = "%s\\bin\\ffmpeg.exe"%ffmpegPath
 	ImageName = VideoName + ".%" + str(Zeros) + "d" + ".png"
-	os.system('%s -i "%s" -r %s -s %s -f image2 %s/%s'%(ffmpegSource, VideoSource, FrameRate, Resolution,ImageDestination, ImageName))#+"& pause"
+	os.system('%s -i "%s" -r %s -s %s -f image2 "%s/%s"'%(ffmpegSource, VideoSource, FrameRate, Resolution,ImageDestination, ImageName))#+"& pause"
 	return ImageName
 
 def images2video(ffmpegPath, ImageSource, VideoDestination, TextBurn, Resolution, FrameRate, OffsetTime):
 	import os
 	ffmpegSource = "%s\\bin\\ffmpeg.exe"%ffmpegPath
 	DecCodec = "-s %s -aspect 16:9 -vcodec libx264 -acodec aac -strict -2 -r %s -pix_fmt yuv420p"%(Resolution,FrameRate)
-	os.system('%s -i %s -ss %s -vf "%s" %s -an -y %s'%(ffmpegSource, ImageSource, OffsetTime, TextBurn, DecCodec, VideoDestination))#+"& pause"
+	os.system('%s -i "%s" -ss %s -vf "%s" %s -an -y "%s"'%(ffmpegSource, ImageSource, OffsetTime, TextBurn, DecCodec, VideoDestination))#+"& pause"
 
 def getPaths():
 	mainPaths = open("UI/MainPaths.txt","r")

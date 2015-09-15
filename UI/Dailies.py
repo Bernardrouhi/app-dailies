@@ -551,19 +551,20 @@ class MainWindow(QtGui.QWidget):
 				videoResolution = preConvert.resCode(Resolution = str(self.getReadResComb.currentText()))
 				videoFrameRate  = int(self.getFrameRateComb.currentText())
 				pathDic = convert.getPaths()
-				prePath = preConvert.setPreDestination()
+				prePath = preConvert.setPreDestination(tempPath="c:/temp/ImageToVideo/%s"%sequenceName)
+				preVideoPath = preConvert.setPreDestination(tempPath="%s/Video"%prePath)
 				if videoPath:
 					ImageName = convert.video2images(
 						ffmpegPath = pathDic["FFMPEG"] ,
 						VideoSource = videoPath ,
 						VideoName = sequenceName ,
-						ImageDestination = prePath ,
+						ImageDestination = preVideoPath ,
 						Resolution = videoResolution,
 						FrameRate = videoFrameRate ,
-						Zeros = 4
+						Zeros = 5
 						)
 					ImageName = preConvert.renameAndMove(
-						setImagesPath = prePath ,
+						setImagesPath = preVideoPath ,
 						fileType = "png" ,
 						name = sequenceName ,
 						zeros = 5 , 
@@ -579,8 +580,7 @@ class MainWindow(QtGui.QWidget):
 							zeros = 5 ,
 							FrameStart = frameStrat
 							)
-					timing = (frameStrat/float(frameRate)) + 0.000
-					offsetT = "00:00:%s"%timing
+					offsetT = preConvert.frameTotime(TimeValue=frameStrat, FrameRate=frameRate)
 					convert.images2video(
 						ffmpegPath = pathDic["FFMPEG"],
 						ImageSource = "%s/%s"%(prePath,ImageName) ,
@@ -596,7 +596,7 @@ class MainWindow(QtGui.QWidget):
 				imageType = str(self.getImageTypeComb.currentText())
 				pathDic = convert.getPaths()
 				textBurn = convert.textDecoration(ArtistN=artistName, SequenceN=sequenceName, TaskN=taskName, FrameN=True, TimeCode=True)
-				prePath = preConvert.setPreDestination()
+				prePath = preConvert.setPreDestination(tempPath="c:/temp/ImageToVideo/%s"%sequenceName)
 				if imageSource:
 					ImageName = preConvert.renameAndMove(
 						setImagesPath = imageSource ,
@@ -614,8 +614,7 @@ class MainWindow(QtGui.QWidget):
 							zeros = 5 ,
 							FrameStart = frameStrat
 							)
-					timing = (frameStrat/float(frameRate)) + 0.000
-					offsetT = "00:00:%s"%timing
+					offsetT = preConvert.frameTotime(TimeValue=frameStrat, FrameRate=frameRate)
 					convert.images2video(
 						ffmpegPath = pathDic["FFMPEG"],
 						ImageSource = "%s/%s"%(prePath,ImageName) ,
