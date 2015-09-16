@@ -17,15 +17,26 @@ https://www.ffmpeg.org/
 - run "Dailies" from UI Folder
 
 ## Tutorial
-Dailies is on beta period, there is no released version yet.
+Dailies is on beta period.
 
 ## Changelog
-v0.0 - 2015 Sep 1st
- - TBD
+**v0.2 - 2015 Sep 16th**
+- Bug Fixed:
+ - Bug fixed for Read and Write path "Spacing in folders"
+ - Bug fixed for time code burn on different frame rates
+- Optimized:
+ - Optimized the time code structure
+- Features:
+ - Build app to be stand alone and be able run multiple times at same time.
+ - Support converting video and rendering 60fps
+ - Support bigger video duration
 
-v0.1 - 2015 Sep 14th
+**v0.1 - 2015 Sep 14th**
  - New UI 
  - Image to Video is functioning
  	- Support jpg, png and bmp
  - Video to Video is functioning
  	- Support mov only
+
+**v0.0 - 2015 Sep 1st**
+ - TBD
