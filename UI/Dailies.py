@@ -289,6 +289,7 @@ class MainWindow(QtGui.QWidget):
 		self.getFrameRateComb.addItem("24")
 		self.getFrameRateComb.addItem("25")
 		self.getFrameRateComb.addItem("30")
+		self.getFrameRateComb.addItem("60")
 
 		movie_framerate_widget.addWidget(staticFrameRateName)
 		movie_framerate_widget.addWidget(self.getFrameRateComb)
@@ -456,6 +457,7 @@ class MainWindow(QtGui.QWidget):
 		self.getWriteFrameRateComb.addItem("24")
 		self.getWriteFrameRateComb.addItem("25")
 		self.getWriteFrameRateComb.addItem("30")
+		self.getWriteFrameRateComb.addItem("60")
 
 		write_framerate_widget.addWidget(staticWriteFrameRateName)
 		write_framerate_widget.addWidget(self.getWriteFrameRateComb)
@@ -561,13 +563,13 @@ class MainWindow(QtGui.QWidget):
 						ImageDestination = preVideoPath ,
 						Resolution = videoResolution,
 						FrameRate = videoFrameRate ,
-						Zeros = 5
+						Zeros = 6
 						)
 					ImageName = preConvert.renameAndMove(
 						setImagesPath = preVideoPath ,
 						fileType = "png" ,
 						name = sequenceName ,
-						zeros = 5 , 
+						zeros = 6 , 
 						destination = prePath ,
 						startNum = frameStrat
 						)
@@ -577,10 +579,10 @@ class MainWindow(QtGui.QWidget):
 							ImagesPath = prePath ,
 							fileType = "png" ,
 							name = sequenceName ,
-							zeros = 5 ,
+							zeros = 6 ,
 							FrameStart = frameStrat
 							)
-					offsetT = preConvert.frameTotime(TimeValue=frameStrat, FrameRate=frameRate)
+					offsetT = preConvert.frameTotime(TimeValue=frameStrat, FrameRate=25)
 					convert.images2video(
 						ffmpegPath = pathDic["FFMPEG"],
 						ImageSource = "%s/%s"%(prePath,ImageName) ,
@@ -602,7 +604,7 @@ class MainWindow(QtGui.QWidget):
 						setImagesPath = imageSource ,
 						fileType = imageType ,
 						name = sequenceName ,
-						zeros = 5 , 
+						zeros = 6 , 
 						destination = prePath ,
 						startNum = frameStrat
 						)
@@ -611,10 +613,10 @@ class MainWindow(QtGui.QWidget):
 							ImagesPath = prePath ,
 							fileType = imageType ,
 							name = sequenceName ,
-							zeros = 5 ,
+							zeros = 6 ,
 							FrameStart = frameStrat
 							)
-					offsetT = preConvert.frameTotime(TimeValue=frameStrat, FrameRate=frameRate)
+					offsetT = preConvert.frameTotime(TimeValue=frameStrat, FrameRate=25)
 					convert.images2video(
 						ffmpegPath = pathDic["FFMPEG"],
 						ImageSource = "%s/%s"%(prePath,ImageName) ,

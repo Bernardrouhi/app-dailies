@@ -123,17 +123,14 @@ def combineName(sequence, shot, version):
 def frameTotime(TimeValue, FrameRate):
 	TimeValue = float("%s.0"%TimeValue)
 	FrameRate = float("%s.0"%FrameRate)
-	seconds = int(TimeValue)
-	milliseconds = 00
 	hours = 00
 	minutes = 00
-	if TimeValue >= FrameRate:
-		seconds = TimeValue/FrameRate
-		if seconds >= 60:
-			minutes = int(seconds / 60) 
-			seconds = seconds - (minutes * 60)
-			if minutes >= 60:
-				hours = int(minutes / 60)
-				minutes = minutes - (hours * 60)
+	seconds = TimeValue/FrameRate
+	if seconds >= 60:
+		minutes = int(seconds / 60) 
+		seconds = seconds - (minutes * 60)
+		if minutes >= 60:
+			hours = int(minutes / 60)
+			minutes = minutes - (hours * 60)
 
 	return "%s:%s:%s"%(hours,minutes,seconds)
